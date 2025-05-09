@@ -66,6 +66,72 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
+// Get user progress for all modules
+router.get('/progress', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user.id;
+    
+    // Get all modules
+    const modules = await prisma.module.findMany({
+      include: {
+        skills: {
+          include: {
+            challenges: true,
+          },
+        },
+      },
+    });
+    
+    // Calculate progress for each module
+    const progress = [];
+    
+    for (const module of modules) {
+      let totalChallenges = 0;
+      let completedChallenges = 0;
+      
+      // Count total challenges in this module
+      for (const skill of module.skills as Skill[]) {
+        totalChallenges += skill.challenges.length;
+      }
+      
+      // Count completed challenges in this module
+      if (totalChallenges > 0) {
+        const challengeIds = (module.skills as Skill[]).flatMap(skill => 
+          skill.challenges.map(challenge => challenge.id)
+        );
+        
+        const completedResults = await prisma.challengeResult.count({
+          where: {
+            userId,
+            challengeId: { in: challengeIds },
+            completed: true,
+          },
+        });
+        
+        completedChallenges = completedResults;
+      }
+      
+      // Calculate percentage
+      const percentage = totalChallenges > 0
+        ? Math.round((completedChallenges / totalChallenges) * 100)
+        : 0;
+      
+      progress.push({
+        moduleId: module.id,
+        moduleName: module.name,
+        totalChallenges,
+        completedChallenges,
+        percentage,
+      });
+    }
+    
+    res.json(progress);
+  } catch (error) {
+    console.error('Error fetching module progress:', error);
+    res.status(500).json({ message: 'Failed to fetch module progress' });
+  }
+});
+
 // Get a single module by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
@@ -164,72 +230,6 @@ router.delete('/:id', isAdmin, async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error deleting module:', error);
     res.status(500).json({ message: 'Failed to delete module' });
-  }
-});
-
-// Get user progress for all modules
-router.get('/progress', async (req: Request, res: Response) => {
-  try {
-    const userId = req.user.id;
-    
-    // Get all modules
-    const modules = await prisma.module.findMany({
-      include: {
-        skills: {
-          include: {
-            challenges: true,
-          },
-        },
-      },
-    });
-    
-    // Calculate progress for each module
-    const progress = [];
-    
-    for (const module of modules) {
-      let totalChallenges = 0;
-      let completedChallenges = 0;
-      
-      // Count total challenges in this module
-      for (const skill of module.skills as Skill[]) {
-        totalChallenges += skill.challenges.length;
-      }
-      
-      // Count completed challenges in this module
-      if (totalChallenges > 0) {
-        const challengeIds = (module.skills as Skill[]).flatMap(skill => 
-          skill.challenges.map(challenge => challenge.id)
-        );
-        
-        const completedResults = await prisma.challengeResult.count({
-          where: {
-            userId,
-            challengeId: { in: challengeIds },
-            completed: true,
-          },
-        });
-        
-        completedChallenges = completedResults;
-      }
-      
-      // Calculate percentage
-      const percentage = totalChallenges > 0
-        ? Math.round((completedChallenges / totalChallenges) * 100)
-        : 0;
-      
-      progress.push({
-        moduleId: module.id,
-        moduleName: module.name,
-        totalChallenges,
-        completedChallenges,
-        percentage,
-      });
-    }
-    
-    res.json(progress);
-  } catch (error) {
-    console.error('Error fetching module progress:', error);
-    res.status(500).json({ message: 'Failed to fetch module progress' });
   }
 });
 
