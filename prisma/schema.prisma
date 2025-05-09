@@ -1,0 +1,154 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for authentication and profile
+model User {
+  id               String        @id @default(uuid())
+  email            String        @unique
+  password         String
+  name             String?
+  avatar           String?
+  role             Role          @default(USER)
+  points           Int           @default(0)
+  level            Int           @default(1)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  progress         Progress[]
+  completedSkills  CompletedSkill[]
+  achievements     UserAchievement[]
+  challengeResults ChallengeResult[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+// DBT Modules (core components)
+model Module {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  icon        String?
+  order       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  skills      Skill[]
+  progress    Progress[]
+}
+
+// DBT Skills within modules
+model Skill {
+  id           String   @id @default(uuid())
+  name         String
+  description  String
+  content      String   @db.Text
+  pointsReward Int      @default(10)
+  order        Int
+  moduleId     String
+  module       Module   @relation(fields: [moduleId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  challenges   Challenge[]
+  completed    CompletedSkill[]
+}
+
+// Track completed skills
+model CompletedSkill {
+  id        String   @id @default(uuid())
+  userId    String
+  skillId   String
+  user      User     @relation(fields: [userId], references: [id])
+  skill     Skill    @relation(fields: [skillId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, skillId])
+}
+
+// Track module progress
+model Progress {
+  id         String   @id @default(uuid())
+  userId     String
+  moduleId   String
+  percentage Float    @default(0)
+  user       User     @relation(fields: [userId], references: [id])
+  module     Module   @relation(fields: [moduleId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, moduleId])
+}
+
+// Gamified challenges for skills
+model Challenge {
+  id           String   @id @default(uuid())
+  title        String
+  description  String
+  type         ChallengeType
+  content      String   @db.Text
+  pointsReward Int      @default(20)
+  skillId      String
+  skill        Skill    @relation(fields: [skillId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  results      ChallengeResult[]
+}
+
+enum ChallengeType {
+  QUIZ
+  REFLECTION
+  PRACTICE
+  SCENARIO
+  MEDITATION
+}
+
+// Track challenge results
+model ChallengeResult {
+  id          String   @id @default(uuid())
+  userId      String
+  challengeId String
+  completed   Boolean  @default(false)
+  score       Int?
+  answers     Json?
+  reflection  String?  @db.Text
+  user        User     @relation(fields: [userId], references: [id])
+  challenge   Challenge @relation(fields: [challengeId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, challengeId])
+}
+
+// Achievement system
+model Achievement {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  icon        String
+  condition   String
+  pointsReward Int     @default(50)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       UserAchievement[]
+}
+
+// User Achievements (many-to-many)
+model UserAchievement {
+  id            String     @id @default(uuid())
+  userId        String
+  achievementId String
+  awardedAt     DateTime   @default(now())
+  user          User       @relation(fields: [userId], references: [id])
+  achievement   Achievement @relation(fields: [achievementId], references: [id])
+
+  @@unique([userId, achievementId])
+}
