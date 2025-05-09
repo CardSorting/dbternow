@@ -6,7 +6,7 @@ export interface Module {
   id: string;
   name: string;
   description: string;
-  icon?: string;
+  icon?: string | null;
   order: number;
   createdAt: Date;
   updatedAt: Date;

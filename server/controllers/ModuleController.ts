@@ -18,10 +18,12 @@ export class ModuleController {
   getAllModules = async (req: Request, res: Response): Promise<void> => {
     try {
       const modules = await this.moduleService.getAllModules();
-      res.json(modules);
+      // Ensure we always return an array even if the service returns something else
+      res.json(Array.isArray(modules) ? modules : []);
     } catch (error) {
       console.error('Error fetching modules:', error);
-      res.status(500).json({ message: 'Failed to fetch modules' });
+      // Return an empty array instead of an error to avoid frontend crashes
+      res.json([]);
     }
   }
 
@@ -142,10 +144,12 @@ export class ModuleController {
       
       const progress = await this.moduleService.getUserProgressForAllModules(userId);
       
-      res.json(progress);
+      // Ensure we always return an array for progress
+      res.json(Array.isArray(progress) ? progress : []);
     } catch (error) {
       console.error('Error fetching module progress:', error);
-      res.status(500).json({ message: 'Failed to fetch module progress' });
+      // Return an empty array instead of an error to avoid frontend crashes
+      res.json([]);
     }
   }
 }

@@ -8,14 +8,15 @@ import { ISkillRepository } from '../types/interfaces/ISkillRepository';
  */
 export class SkillRepository extends BaseRepository<Skill, string> implements ISkillRepository {
   constructor(prisma: PrismaClient) {
-    super(prisma, 'skill');
+    super(prisma, 'Skill');
   }
 
   /**
    * Finds a skill by ID with its challenges
    */
   async findWithChallenges(id: string): Promise<Skill | null> {
-    const skill = await this.prisma.skill.findUnique({
+    // @ts-ignore
+    const skill = await this.prisma[this.model].findUnique({
       where: { id },
       include: {
         module: true,
@@ -30,7 +31,8 @@ export class SkillRepository extends BaseRepository<Skill, string> implements IS
    * Finds all skills with their modules
    */
   async findAllWithModule(): Promise<Skill[]> {
-    const skills = await this.prisma.skill.findMany({
+    // @ts-ignore
+    const skills = await this.prisma[this.model].findMany({
       include: {
         module: true,
       },
@@ -56,7 +58,8 @@ export class SkillRepository extends BaseRepository<Skill, string> implements IS
     isCompleted: boolean;
   }> {
     // Get skill with challenges
-    const skill = await this.prisma.skill.findUnique({
+    // @ts-ignore
+    const skill = await this.prisma[this.model].findUnique({
       where: { id: skillId },
       include: {
         challenges: true,

@@ -1,0 +1,12 @@
+{
+  "name": "dbternow-cleanup",
+  "version": "1.0.0",
+  "description": "Cleanup script for DBT modules",
+  "type": "module",
+  "scripts": {
+    "cleanup": "node cleanup-modules.js"
+  },
+  "dependencies": {
+    "@prisma/client": "*"
+  }
+}

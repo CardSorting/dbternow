@@ -8,14 +8,15 @@ import { IChallengeRepository } from '../types/interfaces/IChallengeRepository';
  */
 export class ChallengeRepository extends BaseRepository<Challenge, string> implements IChallengeRepository {
   constructor(prisma: PrismaClient) {
-    super(prisma, 'challenge');
+    super(prisma, 'Challenge');
   }
 
   /**
    * Finds challenges by skill ID
    */
   async findBySkillId(skillId: string): Promise<Challenge[]> {
-    const challenges = await this.prisma.challenge.findMany({
+    // @ts-ignore
+    const challenges = await this.prisma[this.model].findMany({
       where: { skillId },
       orderBy: {
         id: 'asc', // Order by ID as a fallback
@@ -114,7 +115,8 @@ export class ChallengeRepository extends BaseRepository<Challenge, string> imple
    */
   private async checkForAchievements(userId: string, challengeId: string): Promise<void> {
     // Get the challenge to find its skill and module
-    const challenge = await this.prisma.challenge.findUnique({
+    // @ts-ignore
+    const challenge = await this.prisma[this.model].findUnique({
       where: { id: challengeId },
       include: {
         skill: {
@@ -149,7 +151,8 @@ export class ChallengeRepository extends BaseRepository<Challenge, string> imple
     }
 
     // Check if all challenges in the skill are completed
-    const allChallengesInSkill = await this.prisma.challenge.findMany({
+    // @ts-ignore
+    const allChallengesInSkill = await this.prisma[this.model].findMany({
       where: { skillId: challenge.skillId },
       select: { id: true },
     });

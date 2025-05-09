@@ -9,14 +9,16 @@ import { Skill } from '../models/Skill';
  */
 export class ModuleRepository extends BaseRepository<Module, string> implements IModuleRepository {
   constructor(prisma: PrismaClient) {
-    super(prisma, 'module');
+    super(prisma, 'Module');
   }
 
   /**
    * Finds all modules with skills
    */
   async findAllWithSkills(): Promise<Module[]> {
-    const modules = await this.prisma.module.findMany({
+    // Use bracket notation to access model method dynamically 
+    // @ts-ignore
+    const modules = await this.prisma[this.model].findMany({
       include: {
         skills: true,
       },
@@ -32,7 +34,8 @@ export class ModuleRepository extends BaseRepository<Module, string> implements 
    * Finds a module by ID with its skills
    */
   async findWithSkills(id: string): Promise<Module | null> {
-    const module = await this.prisma.module.findUnique({
+    // @ts-ignore
+    const module = await this.prisma[this.model].findUnique({
       where: { id },
       include: {
         skills: {
@@ -58,7 +61,8 @@ export class ModuleRepository extends BaseRepository<Module, string> implements 
     completedSkills?: any[];
   }> {
     // Get module with skills and challenges
-    const module = await this.prisma.module.findUnique({
+    // @ts-ignore
+    const module = await this.prisma[this.model].findUnique({
       where: { id: moduleId },
       include: {
         skills: {
@@ -125,7 +129,8 @@ export class ModuleRepository extends BaseRepository<Module, string> implements 
     percentage: number;
   }>> {
     // Get all modules
-    const modules = await this.prisma.module.findMany({
+    // @ts-ignore
+    const modules = await this.prisma[this.model].findMany({
       include: {
         skills: {
           include: {

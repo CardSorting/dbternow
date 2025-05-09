@@ -19,7 +19,12 @@ const Dashboard: React.FC = () => {
             Authorization: `Bearer ${state.token}`,
           },
         });
-        const modulesData = await modulesResponse.json();
+        let modulesData = await modulesResponse.json();
+        // Ensure modulesData is always an array
+        if (!Array.isArray(modulesData)) {
+          console.warn('Modules data is not an array, using empty array instead');
+          modulesData = [];
+        }
         
         // Fetch user progress
         const progressResponse = await fetch('/api/modules/progress', {
@@ -27,7 +32,12 @@ const Dashboard: React.FC = () => {
             Authorization: `Bearer ${state.token}`,
           },
         });
-        const progressData = await progressResponse.json();
+        let progressData = await progressResponse.json();
+        // Ensure progressData is always an array
+        if (!Array.isArray(progressData)) {
+          console.warn('Progress data is not an array, using empty array instead');
+          progressData = [];
+        }
         
         // Fetch recent achievements
         const achievementsResponse = await fetch('/api/achievements/user?limit=3', {
@@ -35,7 +45,12 @@ const Dashboard: React.FC = () => {
             Authorization: `Bearer ${state.token}`,
           },
         });
-        const achievementsData = await achievementsResponse.json();
+        let achievementsData = await achievementsResponse.json();
+        // Ensure achievementsData is always an array
+        if (!Array.isArray(achievementsData)) {
+          console.warn('Achievements data is not an array, using empty array instead');
+          achievementsData = [];
+        }
         
         setModules(modulesData);
         setProgress(progressData);

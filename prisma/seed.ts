@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { seedDBT } from './dbt-seed.js';
+// Enhanced content is now in a separate standalone script
 
 const prisma = new PrismaClient();
 
@@ -37,6 +38,9 @@ async function main() {
 
   // Seed DBT modules, skills, challenges using our specialized seed file
   await seedDBT();
+  
+  // Note: Enhanced content is now handled by a separate script: 
+  // run-enhanced-seed.js to avoid potential module loading issues
   
   // Create achievements
   const achievements = [

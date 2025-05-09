@@ -11,7 +11,8 @@ export abstract class BaseRepository<T, ID> implements IRepository<T, ID> {
 
   constructor(prisma: PrismaClient, model: string) {
     this.prisma = prisma;
-    this.model = model;
+    // Ensure the model name is lowercase to match Prisma's API
+    this.model = model.toLowerCase();
   }
 
   /**
