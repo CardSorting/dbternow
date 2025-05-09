@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
+import { DIContainer } from './config/di-container';
 import authRoutes from './routes/auth';
 import moduleRoutes from './routes/modules';
 import skillRoutes from './routes/skills';
@@ -11,6 +12,9 @@ import { authenticateToken } from './middleware/auth';
 
 // Initialize Prisma
 export const prisma = new PrismaClient();
+
+// Initialize Dependency Injection Container
+const diContainer = DIContainer.getInstance(prisma);
 
 // Create Express app
 const app = express();
