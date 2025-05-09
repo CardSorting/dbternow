@@ -29,9 +29,9 @@ interface ChallengeResult {
   userId: string;
   challengeId: string;
   completed: boolean;
-  answers?: string;
-  reflection?: string;
-  score?: number;
+  answers?: any; // Changed from string to any to accommodate Json type
+  reflection: string | null; // Changed from string | undefined to string | null
+  score: number | null; // Changed from number | undefined to number | null
   createdAt: Date;
   updatedAt: Date;
 }

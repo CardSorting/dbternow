@@ -5,6 +5,7 @@ import Layout from './components/layouts/Layout';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Dashboard from './pages/Dashboard';
+import LandingPage from './pages/LandingPage';
 import ModulesList from './pages/modules/ModulesList';
 import ModuleDetail from './pages/modules/ModuleDetail';
 import SkillDetail from './pages/modules/SkillDetail';
@@ -22,22 +23,25 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   }
 
   if (!state.isAuthenticated) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/" />;
   }
 
   return <>{children}</>;
 };
 
 const AppRoutes: React.FC = () => {
+  const { state } = useAuth();
+
   return (
     <Routes>
       {/* Public routes */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={state.isAuthenticated ? <Navigate to="/dashboard" /> : <Login />} />
+      <Route path="/register" element={state.isAuthenticated ? <Navigate to="/dashboard" /> : <Register />} />
       
       {/* Protected routes */}
       <Route path="/" element={<Layout />}>
-        <Route index element={
+        <Route path="dashboard" element={
           <ProtectedRoute>
             <Dashboard />
           </ProtectedRoute>

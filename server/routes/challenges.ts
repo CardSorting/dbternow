@@ -165,7 +165,7 @@ router.post('/:id/submit', async (req: Request, res: Response) => {
         where: { id: existingResult.id },
         data: {
           completed,
-          answers: answers ? JSON.stringify(answers) : undefined,
+          answers: answers || undefined,
           reflection,
           score,
         },
@@ -177,7 +177,7 @@ router.post('/:id/submit', async (req: Request, res: Response) => {
           userId,
           challengeId: id,
           completed,
-          answers: answers ? JSON.stringify(answers) : undefined,
+          answers: answers || undefined,
           reflection,
           score,
         },
