@@ -87,9 +87,20 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  // Load user data if token exists
+  // Load user data if token exists and not on the landing page
   useEffect(() => {
     const loadUser = async () => {
+      // Skip token validation when on the landing page
+      const isLandingPage = window.location.pathname === '/';
+      
+      if (isLandingPage) {
+        dispatch({ type: 'LOADING' });
+        setTimeout(() => {
+          dispatch({ type: 'AUTH_ERROR', payload: '' });
+        }, 100);
+        return;
+      }
+      
       if (state.token) {
         try {
           const response = await fetch('/api/auth/me', {
